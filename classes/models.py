@@ -2,9 +2,7 @@
 
 # GARAGE ### HAS MANY CARS
 class Garage:
-
     all_garages = []
-    
     def __init__(self, address:str):
         self.address = address
         Garage.all_garages.append(self)
@@ -12,21 +10,33 @@ class Garage:
     def __repr__(self):
         return f"Garage(address={self.address})"
     
-
+    def cars(self):
+        return [ car for car in Car.all_cars if car.garage == self ]
+    
 # CAR ### BELONGS TO A GARAGE
 class Car:
-
-    # holds all the cars we've made
     all_cars = []
-
-    def __init__(self, make:str, model:str, license_plate:str):
+    def __init__(self, make:str, model:str, license_plate:str, garage:Garage):
         self.make = make
         self.model = model
         self.license_plate = license_plate
+        self.garage = garage
         Car.all_cars.append(self)
 
     def __repr__(self):
         return f"Car(make={self.make}, model={self.model}, license_plate={self.license_plate})"
+    
+    @property
+    def garage(self):
+        return self._garage
+    
+    @garage.setter
+    def garage(self, value):
+        if type(value) == Garage:
+            self._garage = value
+        else:
+            raise TypeError("Must be of type Garage")
+
 
 
 
@@ -53,6 +63,14 @@ class Doctor:
     def __repr__(self):
         return f"Doctor(name={self.name}, specialty={self.specialty})"
     
+    def appointments(self):
+        return [ apt for apt in Appointment.all_appts if apt.doctor == self ]
+    
+    def patients(self):
+        my_patients = [ apt.patient for apt in Appointment.all_appts if apt.doctor == self ]
+        uniq_patients = set(my_patients)
+        return list(uniq_patients)
+    
 
 # PATIENT ###
 class Patient:
@@ -66,6 +84,12 @@ class Patient:
 
     def __repr__(self):
         return f"Patient(first_name={self.first_name}, last_name={self.last_name})"
+    
+    def appointments(self):
+        return [ apt for apt in Appointment.all_appts if apt.patient == self ]
+    
+    def doctors(self):
+        return [ apt.doctor for apt in Appointment.all_appts if apt.patient == self ]
 
 
 # APPT ###
@@ -73,11 +97,35 @@ class Appointment:
 
     all_appts = []
 
-    def __init__(self):
+    def __init__(self, doctor:Doctor, patient:Patient):
+        self.doctor = doctor
+        self.patient = patient
         Appointment.all_appts.append(self)
 
     def __repr__(self):
         return f"Appointment(patient={self.patient.first_name}, doctor={self.doctor.name})"
+    
+    @property
+    def doctor(self):
+        return self._doctor
+    
+    @doctor.setter
+    def doctor(self, value):
+        if type(value) == Doctor:
+            self._doctor = value
+        else:
+            raise TypeError("Must be of type Doctor and that's no doctor I've ever heard of")
+    
+    @property
+    def patient(self):
+        return self._patient
+    
+    @patient.setter
+    def patient(self, value):
+        if type(value) == Patient:
+            self._patient = value
+        else:
+            raise TypeError("Must be of type Patient")
     
     
 
